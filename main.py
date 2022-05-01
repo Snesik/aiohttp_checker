@@ -7,10 +7,11 @@ from utils import create_connection, sql_select_buy, sql_select_sell, \
 number_requests = 0
 CONFIG = read_yaml('config.yaml')
 
+
 async def get_page(session, parsing_adress, id_steam):
-    proxy = 'http://192.168.0.100:5001'
-    proxy_auth = aiohttp.BasicAuth('snesik', 'L!f2y3b4k5')
-    async with session.get(parsing_adress, proxy=proxy, proxy_auth=proxy_auth) as s:
+    proxy = 'http://192.168.0.222:5003'
+    # proxy_auth = aiohttp.BasicAuth('snesik', 'L!f2y3b4k5')
+    async with session.get(parsing_adress, proxy=proxy) as s:  # proxy_auth=proxy_auth
         if s.status == 200:
             data = await s.json()
             if data['success'] == 1:
@@ -90,9 +91,9 @@ def request_in_base(buy_or_sell):
 def add_in_base(id_steam):
     mydb = create_connection(**CONFIG['BD'])
     mycursor = mydb.cursor()
-
-    mycursor.executemany("""UPDATE all_lot SET STATUS = 1, nowDate = CURRENT_TIMESTAMP() WHERE id_steam = %s""",
-                         id_steam)
+    for one_id in id_steam:
+        mycursor.executemany("""UPDATE all_lot SET STATUS = 1, 
+        nowDate = CURRENT_TIMESTAMP() WHERE id_steam = %s""", one_id)
 
     mydb.commit()
     mydb.close()
@@ -115,7 +116,7 @@ while True:
 
     result_compare = compare(result_bd, 'buy')
     add_in_base(result_compare)
-
+    input()
     result_bd = request_in_base('sell')
     number_requests += len(result_bd)
     number_requests = check(number_requests)
@@ -124,3 +125,4 @@ while True:
 
     result_compare = compare(result_bd, 'sell')
     add_in_base(result_compare)
+    input()
