@@ -92,7 +92,7 @@ def add_in_base(id_steam):
     mydb = create_connection(**CONFIG['BD'])
     mycursor = mydb.cursor()
     for one_id in id_steam:
-        mycursor.executemany("""UPDATE all_lot SET STATUS = 1, 
+        mycursor.execute("""UPDATE all_lot SET STATUS = 1, 
         nowDate = CURRENT_TIMESTAMP() WHERE id_steam = %s""", one_id)
 
     mydb.commit()
