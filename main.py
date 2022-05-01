@@ -59,16 +59,16 @@ def compare(in_base_item, buy_or_sell):
     if buy_or_sell == 'buy':
         for key, values in in_base_item.items():
             if values['buy'] != values['buy_steam']:
-                we_give_status_1.append(key)
+                we_give_status_1.append(key, )
             elif values['buy'] - 0.05 > values['buy_steam_last'] and values['buy_steam_last'] != 0:
-                we_give_status_1.append(key)
+                we_give_status_1.append(key, )
 
     elif buy_or_sell == 'sell':
         for key, values in in_base_item.items():
             if values['sell'] != values['sell_steam']:
-                we_give_status_1.append(key)
+                we_give_status_1.append(key, )
             elif values['sell'] + 0.05 < values['sell_steam_last'] != 0:
-                we_give_status_1.append(key)
+                we_give_status_1.append(key, )
     return we_give_status_1
 
 
@@ -89,12 +89,11 @@ def request_in_base(buy_or_sell):
 
 
 def add_in_base(id_steam):
+    a = [(i,) for i in id_steam]
+    print(len(a))
     mydb = create_connection(**CONFIG['BD'])
     mycursor = mydb.cursor()
-    for one_id in id_steam:
-        mycursor.execute("""UPDATE all_lot SET STATUS = 1, 
-        nowDate = CURRENT_TIMESTAMP() WHERE id_steam = %s""", one_id)
-
+    mycursor.executemany(f"""UPDATE all_lot SET STATUS = 1, nowDate = CURRENT_TIMESTAMP() WHERE id_steam = %s""", a)
     mydb.commit()
     mydb.close()
 
