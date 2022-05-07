@@ -11,15 +11,14 @@ class Modem:
 
     def __enter__(self):
         self.connection = Connection(
-            f'http://{self.login}:{self.password}@{self.ip}/'
-        )
+            f'http://{self.login}:{self.password}@{self.ip}/')
         self.client = Client(self.connection)
         return self
 
     def rotation(self):
         self.client.net.set_register('1', '25002', '7')
         print('Ротация модема')
-        time.sleep(5)
+        time.sleep(7)
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         return self.connection.close()

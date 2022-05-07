@@ -23,16 +23,24 @@ class Base:
         return self
 
     def take_in_base(self, choice):
-        """Получаем все лоты из базы buy\sell"""
+        """ Получаем все лоты из базы buy/sell """
         cur = self.connection.cursor(dictionary=True)
         if choice == 'buy':
             cur.execute('SELECT id_steam, ss as href, buy, sell FROM all_lot '
-                        'WHERE bot is not null and status_trade = 1 and status = 0')
+                        'WHERE bot is not null and status_trade = 1 and status = 0 limit 5000')
         elif choice == 'sell':
-            cur.execute('SELECT id_steam, buy, sell, ss FROM all_lot WHERE status_trade = 3 and status in (0)')
+            cur.execute('SELECT id_steam, buy, sell, ss FROM all_lot '
+                        'WHERE status_trade = 3 and status in (0) limit 5000')
         all_lot = [Item(**i) for i in cur.fetchall()]
         cur.close()
         return all_lot
+
+    def update_base(self, data):
+        cur = self.connection.cursor()
+        cur.executemany('UPDATE all_lot SET STATUS = 1, nowDate = CURRENT_TIMESTAMP() WHERE id_steam = %s', data)
+        cur.commit()
+        print(f'Обновлененно записей: {len(data)}')
+        cur.close()
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         self.connection.close()
