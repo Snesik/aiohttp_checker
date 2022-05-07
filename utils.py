@@ -1,14 +1,18 @@
-import time
+
 import yaml
 import mysql.connector
-from huawei_lte_api.Client import Client
-from huawei_lte_api.Connection import Connection
+import urllib
 
 
 def read_yaml(path: str):
     with open(path, 'r') as c:
         return yaml.safe_load(c)
 
+def bild_hash_name_apid_game(ss):
+    ss = ss.split('/')
+    hash_name = urllib.parse.unquote(ss[6])
+    #appid_game = ss[5]
+    return hash_name
 
 def create_connection(host, login, passwd, bd):
     connection = None
@@ -40,18 +44,4 @@ sql_select_sell = 'SELECT id_steam, buy, sell, ss FROM all_lot WHERE status_trad
 sql_update_buy = "UPDATE all_lot SET STATUS = %s, nowDate = CURRENT_TIMESTAMP() WHERE ss = %s"
 
 
-def rotation():
-    try:
-        login = 'http://admin:01233210@192.168.8.1/'
-        with Connection(login) as connection:
-            try:
-                client = Client(
-                    connection)
-                client.net.set_register('1', '25002', '7')
-                time.sleep(5)
 
-            except:
-                client.device.reboot()
-                time.sleep(60)
-    except:
-        print('Ошибка')

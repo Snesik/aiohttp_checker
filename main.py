@@ -1,11 +1,20 @@
-import time
 import aiohttp
 import asyncio
 from itertools import islice
+from models import Base, Item
 from utils import create_connection, sql_select_buy, sql_select_sell, \
-    headers, rotation, read_yaml
+    headers, read_yaml
+from modem import Modem
 
 CONFIG = read_yaml('config.yaml')
+
+sql_select_buy1 = 'SELECT id_steam, buy, sell, ss FROM all_lot ' \
+                 'WHERE bot is not null and status_trade = 1 and status = 0 limit 10000'
+
+
+with Base(CONFIG['BD']) as a:
+     bbb = a.take_in_base('buy')
+print()
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -130,7 +139,8 @@ def take_items():
         # for i in item:
         #     get_item_info[i] = item[i]
         asyncio.run(main(item))
-        rotation()
+        with Modem(CONFIG['Modem']) as client:
+            client.rotation()
 
 
 
@@ -142,7 +152,6 @@ while True:
     add_in_base(result_compare)
 
     result_bd = request_in_base('sell')
-
     asyncio.run(main(result_bd))
 
     result_compare = compare(result_bd, 'sell')
