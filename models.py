@@ -1,14 +1,17 @@
 import urllib
 import mysql.connector
+from utils import read_yaml
 from urllib import parse
 
 
 class Base:
-    def __init__(self, config):
-        self.host = config['host']
-        self.login = config['login']
-        self.passwd = config['passwd']
-        self.bd = config['bd']
+    config = read_yaml('config.yaml')['BD']
+
+    def __init__(self):
+        self.host = self.config['host']
+        self.login = self.config['login']
+        self.passwd = self.config['passwd']
+        self.bd = self.config['bd']
 
     def __enter__(self):
         try:
@@ -37,7 +40,8 @@ class Base:
 
     def update_base(self, data):
         cur = self.connection.cursor()
-        cur.executemany('UPDATE all_lot SET STATUS = 1, nowDate = CURRENT_TIMESTAMP() WHERE id_steam = %s', data)
+        cur.executemany('UPDATE all_lot SET STATUS = 1, nowDate = CURRENT_TIMESTAMP() '
+                        'WHERE id_steam = %s', data)
         self.connection.commit()
         print(f'Обновлененно записей: {len(data)}')
         cur.close()

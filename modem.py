@@ -1,13 +1,16 @@
 import time
 from huawei_lte_api.Client import Client
 from huawei_lte_api.Connection import Connection
+from utils import read_yaml
 
 
 class Modem:
-    def __init__(self, config):
-        self.login = config['login']
-        self.password = config['password']
-        self.ip = config['ip']
+    config = read_yaml('config.yaml')['Modem']
+
+    def __init__(self):
+        self.login = self.config['login']
+        self.password = self.config['password']
+        self.ip = self.config['ip']
 
     def __enter__(self):
         self.connection = Connection(

@@ -4,11 +4,9 @@ import datetime
 import aiohttp
 import asyncio
 from models import Base
-from utils import headers, read_yaml, chunks
+from utils import headers, chunks
 from modem import Modem
 from tqdm import tqdm
-
-CONFIG = read_yaml('config.yaml')
 
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
@@ -56,7 +54,6 @@ async def get_all(session, in_base_item):
 
 
 async def main(in_base_item):
-    # connector = aiohttp.TCPConnector(force_close=True)
     # connector = aiohttp.TCPConnector(force_close=True, limit=100, limit_per_host=100)
     async with aiohttp.ClientSession() as session:  # connector=connector
         session.header = headers
@@ -65,7 +62,7 @@ async def main(in_base_item):
 
 def compare(data, choice):
     update = []
-    data = [i for i in data if i != None]
+    data = [i for i in data if i is not None]
     if choice == 'buy':
         for item in tqdm(data, ascii='_$', colour='green', desc='Ищем перебитые, завышеные лоты', ncols=200):
             if not item.buy_base:
@@ -94,35 +91,37 @@ def compare(data, choice):
     return [(i,) for i in update]
 
 
-with Modem(CONFIG['Modem']) as m:
-    m.rotation()
+if __name__ == "__main__":
 
-while True:
-    os.system('cls')
-    start_time = time.time()
+    with Modem() as m:
+        m.rotation()
 
-    all_result = []
-    with Base(CONFIG['BD']) as bd:
-        all_buy_bd = bd.take_in_base('buy')
-    for item in chunks(all_buy_bd, SIZE=3000):
-        all_result += asyncio.run(main(item))
-        print(datetime.datetime.now(), f'Запросов сделали, Покупки: {len(all_result)}')
-        with Modem(CONFIG['Modem']) as m:
-            m.rotation()
-    data = compare(all_result, 'buy')
-    with Base(CONFIG['BD']) as bd:
-        bd.update_base(data)
+    while True:
+        os.system('cls')
+        start_time = time.time()
 
-    all_result = []
-    with Base(CONFIG['BD']) as bd:
-        all_sell_bd = bd.take_in_base('sell')
-    for item in chunks(all_sell_bd, SIZE=3000):
-        all_result += asyncio.run(main(item))
-        print(datetime.datetime.now(), f'Запросов сделали, Продажи: {len(all_result)}')
-        with Modem(CONFIG['Modem']) as m:
-            m.rotation()
-    data = compare(all_result, 'sell')
-    with Base(CONFIG['BD']) as bd:
-        bd.update_base(data)
+        all_result = []
+        with Base() as bd:
+            all_buy_bd = bd.take_in_base('buy')
+        for item in chunks(all_buy_bd, SIZE=3000):
+            all_result += asyncio.run(main(item))
+            print(datetime.datetime.now(), f'Запросов сделали, Покупки: {len(all_result)}')
+            with Modem() as m:
+                m.rotation()
+        data = compare(all_result, 'buy')
+        with Base() as bd:
+            bd.update_base(data)
 
-    print("--- %s seconds ---" % (time.time() - start_time))
+        all_result = []
+        with Base() as bd:
+            all_sell_bd = bd.take_in_base('sell')
+        for item in chunks(all_sell_bd, SIZE=3000):
+            all_result += asyncio.run(main(item))
+            print(datetime.datetime.now(), f'Запросов сделали, Продажи: {len(all_result)}')
+            with Modem() as m:
+                m.rotation()
+        data = compare(all_result, 'sell')
+        with Base() as bd:
+            bd.update_base(data)
+
+        print("--- %s seconds ---" % (time.time() - start_time))

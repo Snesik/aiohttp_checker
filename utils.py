@@ -4,6 +4,7 @@ import urllib
 from itertools import islice
 
 
+
 def read_yaml(path: str):
     with open(path, 'r') as c:
         return yaml.safe_load(c)
@@ -45,7 +46,7 @@ headers = ({'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
             'Pragma': 'no-cache',
             'Cache-Control': 'no-cache'})
 
-sql_select_buy = 'SELECT id_steam, buy, sell, ss FROM all_lot ' \
-                 'WHERE bot is not null and status_trade = 1 and status = 0 limit 10000'
-sql_select_sell = 'SELECT id_steam, buy, sell, ss FROM all_lot WHERE status_trade = 3 and status in (0)'
-sql_update_buy = "UPDATE all_lot SET STATUS = %s, nowDate = CURRENT_TIMESTAMP() WHERE ss = %s"
+# sql_select_buy = 'SELECT id_steam, buy, sell, ss FROM all_lot ' \
+#                  'WHERE bot is not null and status_trade = 1 and status = 0 limit 10000'
+# sql_select_sell = 'SELECT id_steam, buy, sell, ss FROM all_lot WHERE status_trade = 3 and status in (0)'
+# sql_update_buy = "UPDATE all_lot SET STATUS = %s, nowDate = CURRENT_TIMESTAMP() WHERE ss = %s"
