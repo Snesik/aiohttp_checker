@@ -5,6 +5,7 @@ from utils import read_yaml
 
 
 class Modem:
+    """Класс для работы с модемом"""
     config = read_yaml('config.yaml')['Modem']
 
     def __init__(self):

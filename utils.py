@@ -1,41 +1,22 @@
 import yaml
-import mysql.connector
-import urllib
+import urllib.parse
 from itertools import islice
 
 
-
 def read_yaml(path: str):
+    """Загрузить из yaml"""
     with open(path, 'r') as c:
         return yaml.safe_load(c)
 
 
-def bild_hash_name_apid_game(ss):
-    ss = ss.split('/')
-    hash_name = urllib.parse.unquote(ss[6])
-    return hash_name
-
-
-def create_connection(host, login, passwd, bd):
-    connection = None
-    try:
-        connection = mysql.connector.connect(
-            host=host,
-            user=login,
-            passwd=passwd,
-            database=bd
-        )
-    except Exception as e:
-        print(f"The error '{e}' occurred")
-    return connection
-
-
-def chunks(data, SIZE=4000):
+def chunks(data: list, size: int):
+    """Разделения списка на части"""
     it = iter(data)
-    for i in range(0, len(data), SIZE):
-        yield {k for k in islice(it, SIZE)}
+    for i in range(0, len(data), size):
+        yield {k for k in islice(it, size)}
 
 
+"""Заголовок для запросов"""
 headers = ({'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
             'Connection': 'keep-alive',
             'Host': 'steamcommunity.com',
@@ -45,8 +26,3 @@ headers = ({'Accept-Language': 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
             'Accept-Encoding': 'gzip, deflate',
             'Pragma': 'no-cache',
             'Cache-Control': 'no-cache'})
-
-# sql_select_buy = 'SELECT id_steam, buy, sell, ss FROM all_lot ' \
-#                  'WHERE bot is not null and status_trade = 1 and status = 0 limit 10000'
-# sql_select_sell = 'SELECT id_steam, buy, sell, ss FROM all_lot WHERE status_trade = 3 and status in (0)'
-# sql_update_buy = "UPDATE all_lot SET STATUS = %s, nowDate = CURRENT_TIMESTAMP() WHERE ss = %s"

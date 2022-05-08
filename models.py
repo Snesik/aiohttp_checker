@@ -5,6 +5,7 @@ from urllib import parse
 
 
 class Base:
+    """Запросы в базу"""
     config = read_yaml('config.yaml')['BD']
 
     def __init__(self):
@@ -26,7 +27,7 @@ class Base:
         return self
 
     def take_in_base(self, choice):
-        """ Получаем все лоты из базы buy/sell """
+        """Получаем все лоты из базы buy/sell"""
         cur = self.connection.cursor(dictionary=True)
         if choice == 'buy':
             cur.execute('SELECT id_steam, ss as href, buy, sell FROM all_lot '
@@ -39,6 +40,7 @@ class Base:
         return all_lot
 
     def update_base(self, data):
+        """Обновить базу по id_steam"""
         cur = self.connection.cursor()
         cur.executemany('UPDATE all_lot SET STATUS = 1, nowDate = CURRENT_TIMESTAMP() '
                         'WHERE id_steam = %s', data)
@@ -51,6 +53,7 @@ class Base:
 
 
 class Item:
+    """Класс предмета"""
     def __init__(self, id_steam, href, buy, sell):
         self.id_steam = id_steam
         self.href = href

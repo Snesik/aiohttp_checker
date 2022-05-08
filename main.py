@@ -103,7 +103,7 @@ if __name__ == "__main__":
         all_result = []
         with Base() as bd:
             all_buy_bd = bd.take_in_base('buy')
-        for item in chunks(all_buy_bd, SIZE=3000):
+        for item in chunks(all_buy_bd, size=3000):
             all_result += asyncio.run(main(item))
             print(datetime.datetime.now(), f'Запросов сделали, Покупки: {len(all_result)}')
             with Modem() as m:
@@ -115,7 +115,7 @@ if __name__ == "__main__":
         all_result = []
         with Base() as bd:
             all_sell_bd = bd.take_in_base('sell')
-        for item in chunks(all_sell_bd, SIZE=3000):
+        for item in chunks(all_sell_bd, size=3000):
             all_result += asyncio.run(main(item))
             print(datetime.datetime.now(), f'Запросов сделали, Продажи: {len(all_result)}')
             with Modem() as m:
