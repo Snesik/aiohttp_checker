@@ -1,6 +1,6 @@
-import time
 import os
-import colorama as color
+import time
+import datetime
 import aiohttp
 import asyncio
 from itertools import islice
@@ -12,18 +12,6 @@ from tqdm import tqdm
 
 CONFIG = read_yaml('config.yaml')
 
-sql_select_buy1 = 'SELECT id_steam, buy, sell, ss FROM all_lot ' \
-                 'WHERE bot is not null and status_trade = 1 and status = 0 limit 10000'
-
-
-# with Base(CONFIG['BD']) as a:
-#      bbb = a.take_in_base('buy')
-# print()
-# for i in tqdm(bbb, desc='Считаем', colour='green'):
-#     time.sleep(0.5)
-#     bb = 'ss'
-
-
 asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
@@ -31,24 +19,26 @@ async def get_page(session, parsing_adress, item):
     # proxy = 'http://192.168.0.222:5003'
     proxy = 'http://192.168.0.100:5003'
     proxy_auth = aiohttp.BasicAuth('snesik1', 'L!f2y3b4k5')
-    #try:
+    # try:
     async with session.get(parsing_adress, proxy=proxy, proxy_auth=proxy_auth) as s:  #
         if s.status == 200:
             data = await s.json()
             if data['success'] == 1:
-                #await ss(data, item)
+                # await ss(data, item)
                 return await ss(data, item)
     # except:
     #     print(item)
+
+
 async def ss(data, item):
     if not data['buy_order_graph']:
         item.buy_steam = 0
     else:
         item.buy_steam = data['buy_order_graph'][0][0]
         if len(data['buy_order_graph']) >= 2:
-            item.buy_steam_lats = data['buy_order_graph'][1][0]
+            item.buy_steam_last = data['buy_order_graph'][1][0]
         else:
-            item.buy_steam_lats = 0
+            item.buy_steam_last = 0
 
     if not data['sell_order_graph']:
         item.sell_steam = 0
@@ -59,6 +49,7 @@ async def ss(data, item):
         else:
             item.sell_steam_last = 0
     return item
+
 
 async def get_all(session, in_base_item):
     tasks = []
@@ -78,64 +69,36 @@ async def main(in_base_item):
         return await get_all(session, in_base_item)
 
 
-def compare(in_base_item, buy_or_sell):
-    if cho
-    a = [i for i in in_base_item if not i.buy_base or not i.buy_steam or not i.buy_steam_lats]
-    b = [i for i in in_base_item if i.buy_base != i.buy_steam or i.buy_steam - 0.05 > i.buy_steam_lats]
-    we_give_status_1 = []
-    if buy_or_sell == 'buy':
-        for key, values in in_base_item.items():
-            if in_base_item[key].get('buy_steam', None) == None:
+def compare(data, choice):
+    update = []
+    data = [i for i in data if i != None]
+    if choice == 'buy':
+        for item in tqdm(data, ascii='_$', colour='green', desc='Ищем перебитые, завышеные лоты', ncols=200):
+            if not item.buy_base:
                 continue
-            elif values['buy'] != values['buy_steam']:
-                we_give_status_1.append(key, )
-            if in_base_item[key].get('buy_steam_last', None) == None:
+            elif item.buy_base != item.buy_steam:
+                update.append(item.id_steam, )
+            elif not item.buy_steam_last:
                 continue
-            elif values['buy'] - 0.05 > values['buy_steam_last'] and values['buy_steam_last'] != 0:
-                we_give_status_1.append(key, )
-            elif values['buy_steam'] == 0:
-                we_give_status_1.append(key, )
-
-
-    elif buy_or_sell == 'sell':
-        for key, values in in_base_item.items():
-            if in_base_item[key].get('sell_steam', None) == None:
+            elif item.buy_steam - 0.05 > item.buy_steam_last != 0:
+                update.append(item.id_steam, )
+            elif item.buy_steam == 0:
+                update.append(item.id_steam, )
+    elif choice == 'sell':
+        for item in tqdm(data, ascii='_$', colour='green', desc='Ищем перебитые, завышеные лоты', ncols=200):
+            if not item.sell_base:
                 continue
-            elif values['sell'] != values['sell_steam']:
-                we_give_status_1.append(key, )
-            if in_base_item[key].get('sell_steam_last', None) == None:
+            elif item.sell_base != item.sell_steam:
+                update.append(item.id_steam, )
+            elif not item.sell_steam_last:
                 continue
-            elif values['sell'] + 0.05 < values['sell_steam_last'] != 0:
-                we_give_status_1.append(key, )
-            elif values['sell_steam'] == 0:
-                we_give_status_1.append(key, )
-    return we_give_status_1
-
-
-# def request_in_base(buy_or_sell):
-#     in_base_item = {}
-#     mydb = create_connection(**CONFIG['BD'])
-#     mycursor = mydb.cursor(dictionary=True)
-#     if buy_or_sell == 'buy':
-#         mycursor.execute(sql_select_buy)
-#
-#     elif buy_or_sell == 'sell':
-#         mycursor.execute(sql_select_sell)
-#
-#     for i in mycursor.fetchall():
-#         in_base_item[i['id_steam']] = {'buy': i['buy'], 'sell': i['sell'], 'ss': i['ss']}
-#     mydb.close()
-#     return in_base_item
-
-
-# def add_in_base(id_steam):
-#     a = [(i,) for i in id_steam]
-#     print(len(a))
-#     mydb = create_connection(**CONFIG['BD'])
-#     mycursor = mydb.cursor()
-#     mycursor.executemany(f"""UPDATE all_lot SET STATUS = 1, nowDate = CURRENT_TIMESTAMP() WHERE id_steam = %s""", a)
-#     mydb.commit()
-#     mydb.close()
+            elif item.sell_steam + 0.05 < item.sell_steam_last != 0:
+                update.append(item.id_steam, )
+            elif item.sell_steam == 0:
+                update.append(item.id_steam, )
+    print(datetime.datetime.now(),'\nНайдено: ', len(update))
+    a = [(i,) for i in update]
+    return a
 
 
 def chunks(data, SIZE=4000):
@@ -143,45 +106,36 @@ def chunks(data, SIZE=4000):
     for i in range(0, len(data), SIZE):
         yield {k for k in islice(it, SIZE)}
 
-
-def take_items():
-    get_item_info = {}
-    # how_mach = 0
-    # how_mach_once = math.ceil(len(result_bd) / 4000)
-    for item in chunks(result_bd, 4000):
-        # for i in item:
-        #     get_item_info[i] = item[i]
-        asyncio.run(main(item))
-        with Modem(CONFIG['Modem']) as client:
-            client.rotation()
-
-
+start_time = time.time()
+with Modem(CONFIG['Modem']) as m:
+    m.rotation()
 
 while True:
-
-
-
-    with Base(CONFIG['BD']) as bd:
-        all_buy_bd = bd.take_in_base('buy')
-
+    os.system('cls')
 
     all_result = []
-    for item in tqdm(chunks(all_buy_bd, 3000), ascii='_$', colour='green'):
+    with Base(CONFIG['BD']) as bd:
+        all_buy_bd = bd.take_in_base('buy')
+    for item in chunks(all_buy_bd, SIZE=3000):
         all_result += asyncio.run(main(item))
-        print(f'Запросов сделали: {len(all_result)}')
+        print(datetime.datetime.now(), f'Запросов сделали, Покупки: {len(all_result)}')
         with Modem(CONFIG['Modem']) as m:
             m.rotation()
+    data = compare(all_result, 'buy')
+    with Base(CONFIG['BD']) as bd:
+        bd.update_base(data)
 
-    a = compare(all_result, 'buy')
-    print()
-    result_bd = request_in_base('buy')
-    take_items()
+    all_result = []
+    with Base(CONFIG['BD']) as bd:
+        all_sell_bd = bd.take_in_base('sell')
+    for item in chunks(all_sell_bd, SIZE=3000):
+        all_result += asyncio.run(main(item))
+        print(datetime.datetime.now(), f'Запросов сделали, Продажи: {len(all_result)}')
+        with Modem(CONFIG['Modem']) as m:
+            m.rotation()
+    data = compare(all_result, 'sell')
+    with Base(CONFIG['BD']) as bd:
+        bd.update_base(data)
 
-    result_compare = compare(result_bd, 'buy')
-    add_in_base(result_compare)
 
-    result_bd = request_in_base('sell')
-    asyncio.run(main(result_bd))
-
-    result_compare = compare(result_bd, 'sell')
-    add_in_base(result_compare)
+    print("--- %s seconds ---" % (time.time() - start_time))

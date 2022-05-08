@@ -27,10 +27,10 @@ class Base:
         cur = self.connection.cursor(dictionary=True)
         if choice == 'buy':
             cur.execute('SELECT id_steam, ss as href, buy, sell FROM all_lot '
-                        'WHERE bot is not null and status_trade = 1 and status = 0 limit 5000')
+                        'WHERE bot is not null and status_trade = 1 and status = 0')
         elif choice == 'sell':
-            cur.execute('SELECT id_steam, buy, sell, ss FROM all_lot '
-                        'WHERE status_trade = 3 and status in (0) limit 5000')
+            cur.execute('SELECT id_steam, ss as href, buy, sell FROM all_lot '
+                        'WHERE status_trade = 3 and status = 0')
         all_lot = [Item(**i) for i in cur.fetchall()]
         cur.close()
         return all_lot
@@ -38,7 +38,7 @@ class Base:
     def update_base(self, data):
         cur = self.connection.cursor()
         cur.executemany('UPDATE all_lot SET STATUS = 1, nowDate = CURRENT_TIMESTAMP() WHERE id_steam = %s', data)
-        cur.commit()
+        self.connection.commit()
         print(f'Обновлененно записей: {len(data)}')
         cur.close()
 
@@ -55,7 +55,7 @@ class Item:
         self.buy_steam = None
         self.sell_steam = None
         self.sell_steam_last = None
-        self.buy_steam_lats = None
+        self.buy_steam_last = None
 
     def __str__(self):
         """Возращаем только имя из ссылки"""
