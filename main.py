@@ -3,10 +3,8 @@ import time
 import datetime
 import aiohttp
 import asyncio
-from itertools import islice
 from models import Base
-from utils import create_connection, sql_select_buy, sql_select_sell, \
-    headers, read_yaml
+from utils import headers, read_yaml, chunks
 from modem import Modem
 from tqdm import tqdm
 
@@ -19,15 +17,11 @@ async def get_page(session, parsing_adress, item):
     # proxy = 'http://192.168.0.222:5003'
     proxy = 'http://192.168.0.100:5003'
     proxy_auth = aiohttp.BasicAuth('snesik1', 'L!f2y3b4k5')
-    # try:
     async with session.get(parsing_adress, proxy=proxy, proxy_auth=proxy_auth) as s:  #
         if s.status == 200:
             data = await s.json()
             if data['success'] == 1:
-                # await ss(data, item)
                 return await ss(data, item)
-    # except:
-    #     print(item)
 
 
 async def ss(data, item):
@@ -96,22 +90,16 @@ def compare(data, choice):
                 update.append(item.id_steam, )
             elif item.sell_steam == 0:
                 update.append(item.id_steam, )
-    print(datetime.datetime.now(),'\nНайдено: ', len(update))
-    a = [(i,) for i in update]
-    return a
+    print(datetime.datetime.now(), '\nНайдено: ', len(update))
+    return [(i,) for i in update]
 
 
-def chunks(data, SIZE=4000):
-    it = iter(data)
-    for i in range(0, len(data), SIZE):
-        yield {k for k in islice(it, SIZE)}
-
-start_time = time.time()
 with Modem(CONFIG['Modem']) as m:
     m.rotation()
 
 while True:
     os.system('cls')
+    start_time = time.time()
 
     all_result = []
     with Base(CONFIG['BD']) as bd:
@@ -136,6 +124,5 @@ while True:
     data = compare(all_result, 'sell')
     with Base(CONFIG['BD']) as bd:
         bd.update_base(data)
-
 
     print("--- %s seconds ---" % (time.time() - start_time))
