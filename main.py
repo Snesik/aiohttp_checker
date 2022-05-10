@@ -97,31 +97,36 @@ if __name__ == "__main__":
         m.rotation()
 
     while True:
-        os.system('cls')
-        start_time = time.time()
+        try:
+            os.system('cls')
+            start_time = time.time()
 
-        all_result = []
-        with Base() as bd:
-            all_buy_bd = bd.take_in_base('buy')
-        for item in chunks(all_buy_bd, size=3000):
-            all_result += asyncio.run(main(item))
-            print(datetime.datetime.now(), f'Запросов сделали, Покупки: {len(all_result)}')
+            all_result = []
+            with Base() as bd:
+                all_buy_bd = bd.take_in_base('buy')
+            for item in chunks(all_buy_bd, size=3000):
+                all_result += asyncio.run(main(item))
+                print(datetime.datetime.now(), f'Запросов сделали, Покупки: {len(all_result)}')
+                with Modem() as m:
+                    m.rotation()
+            data = compare(all_result, 'buy')
+            with Base() as bd:
+                bd.update_base(data)
+
+            all_result = []
+            with Base() as bd:
+                all_sell_bd = bd.take_in_base('sell')
+            for item in chunks(all_sell_bd, size=3000):
+                all_result += asyncio.run(main(item))
+                print(datetime.datetime.now(), f'Запросов сделали, Продажи: {len(all_result)}')
+                with Modem() as m:
+                    m.rotation()
+            data = compare(all_result, 'sell')
+            with Base() as bd:
+                bd.update_base(data)
+
+            print("--- %s seconds ---" % (time.time() - start_time))
+        except:
+            time.sleep(60)
             with Modem() as m:
                 m.rotation()
-        data = compare(all_result, 'buy')
-        with Base() as bd:
-            bd.update_base(data)
-
-        all_result = []
-        with Base() as bd:
-            all_sell_bd = bd.take_in_base('sell')
-        for item in chunks(all_sell_bd, size=3000):
-            all_result += asyncio.run(main(item))
-            print(datetime.datetime.now(), f'Запросов сделали, Продажи: {len(all_result)}')
-            with Modem() as m:
-                m.rotation()
-        data = compare(all_result, 'sell')
-        with Base() as bd:
-            bd.update_base(data)
-
-        print("--- %s seconds ---" % (time.time() - start_time))

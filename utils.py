@@ -1,5 +1,4 @@
 import yaml
-import urllib.parse
 from itertools import islice
 
 
