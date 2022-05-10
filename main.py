@@ -98,7 +98,7 @@ if __name__ == "__main__":
 
     while True:
         try:
-            os.system('clear')
+            #os.system('clear')
             start_time = time.time()
 
             all_result = []
