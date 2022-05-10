@@ -13,7 +13,7 @@ asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 async def get_page(session, parsing_adress, item):
     proxy = 'http://192.168.0.222:5003'
-    #proxy = 'http://192.168.0.100:5003'
+     #proxy = 'http://192.168.0.100:5003'
     proxy_auth = aiohttp.BasicAuth('snesik1', 'L!f2y3b4k5')
     async with session.get(parsing_adress, proxy=proxy, proxy_auth=proxy_auth) as s:  #
         if s.status == 200:
