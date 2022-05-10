@@ -8,7 +8,7 @@ from utils import headers, chunks
 from modem import Modem
 from tqdm import tqdm
 
-asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
+#asyncio.set_event_loop_policy(asyncio.WindowsSelectorEventLoopPolicy())
 
 
 async def get_page(session, parsing_adress, item):
