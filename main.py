@@ -12,9 +12,9 @@ from tqdm import tqdm
 
 
 async def get_page(session, parsing_adress, item):
-    #proxy = 'http://192.168.0.222:5003'
-    proxy = 'http://192.168.0.100:5001'
-    proxy_auth = aiohttp.BasicAuth('snesik', 'L!f2y3b4k5')
+    proxy = 'http://192.168.0.222:5003'
+    #proxy = 'http://192.168.0.100:5001'
+    proxy_auth = aiohttp.BasicAuth('snesik1', 'L!f2y3b4k5')
     async with session.get(parsing_adress, proxy=proxy, proxy_auth=proxy_auth) as s:  #
         if s.status == 200:
             data = await s.json()
@@ -99,7 +99,6 @@ if __name__ == "__main__":
 
     while True:
         try:
-            #os.system('clear')
             start_time = time.time()
 
             all_result = []

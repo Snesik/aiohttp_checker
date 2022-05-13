@@ -32,7 +32,7 @@ class Base:
         if choice == 'buy':
             cur.execute('SELECT id_steam, ss as href, buy, sell FROM all_lot '
                         'WHERE bot is not null and status_trade = 1 and status = 0 '
-                        'and ss not like "%https://steamcommunity.com/market/listings/730/%" limit 3000')
+                        'and ss not like "%https://steamcommunity.com/market/listings/730/%"')
         elif choice == 'sell':
             cur.execute('SELECT id_steam, ss as href, buy, sell FROM all_lot '
                         'WHERE status_trade = 3 and status = 0')
