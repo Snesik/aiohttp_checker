@@ -49,7 +49,7 @@ class Base:
                         'UPDATE STATUS=1', [i])
         # cur.executemany('UPDATE all_lot SET STATUS = 1, nowDate = CURRENT_TIMESTAMP() '
         #                 'WHERE id_steam = %s', data)
-        self.connection.commit()
+            self.connection.commit()
         print(f'Обновлененно записей: {len(data)}')
         cur.close()
 
