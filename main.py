@@ -1,4 +1,4 @@
-import os
+import traceback
 import time
 import datetime
 import aiohttp
@@ -12,9 +12,9 @@ from tqdm import tqdm
 
 
 async def get_page(session, parsing_adress, item):
-    proxy = 'http://192.168.0.222:5003'
-     #proxy = 'http://192.168.0.100:5003'
-    proxy_auth = aiohttp.BasicAuth('snesik1', 'L!f2y3b4k5')
+    #proxy = 'http://192.168.0.222:5003'
+    proxy = 'http://192.168.0.100:5001'
+    proxy_auth = aiohttp.BasicAuth('snesik', 'L!f2y3b4k5')
     async with session.get(parsing_adress, proxy=proxy, proxy_auth=proxy_auth) as s:  #
         if s.status == 200:
             data = await s.json()
@@ -68,27 +68,28 @@ def compare(data, choice):
             if not item.buy_base:
                 continue
             elif item.buy_base != item.buy_steam:
-                update.append(item.id_steam, )
+                update.append(item.href)
             elif not item.buy_steam_last:
                 continue
             elif item.buy_steam - 0.05 > item.buy_steam_last != 0:
-                update.append(item.id_steam, )
+                update.append(item.href)
             elif item.buy_steam == 0:
-                update.append(item.id_steam, )
+                update.append(item.href)
     elif choice == 'sell':
         for item in tqdm(data, ascii='_$', colour='green', desc='Ищем перебитые, завышеные лоты', ncols=200):
             if not item.sell_base:
                 continue
             elif item.sell_base != item.sell_steam:
-                update.append(item.id_steam, )
+                update.append(item.href)
             elif not item.sell_steam_last:
                 continue
             elif item.sell_steam + 0.05 < item.sell_steam_last != 0:
-                update.append(item.id_steam, )
+                update.append(item.href)
             elif item.sell_steam == 0:
-                update.append(item.id_steam, )
+                update.append(item.href)
     print(datetime.datetime.now(), '\nНайдено: ', len(update))
-    return [(i,) for i in update]
+    return update
+    #return [i for i in update]
 
 
 if __name__ == "__main__":
@@ -127,6 +128,7 @@ if __name__ == "__main__":
 
             print("--- %s seconds ---" % (time.time() - start_time))
         except:
+            traceback.print_exc()
             time.sleep(60)
             with Modem() as m:
                 m.rotation()

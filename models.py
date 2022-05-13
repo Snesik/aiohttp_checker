@@ -31,7 +31,8 @@ class Base:
         cur = self.connection.cursor(dictionary=True)
         if choice == 'buy':
             cur.execute('SELECT id_steam, ss as href, buy, sell FROM all_lot '
-                        'WHERE bot is not null and status_trade = 1 and status = 0')
+                        'WHERE bot is not null and status_trade = 1 and status = 0 '
+                        'and ss not like "%https://steamcommunity.com/market/listings/730/%" limit 3000')
         elif choice == 'sell':
             cur.execute('SELECT id_steam, ss as href, buy, sell FROM all_lot '
                         'WHERE status_trade = 3 and status = 0')
@@ -42,8 +43,12 @@ class Base:
     def update_base(self, data):
         """Обновить базу по id_steam"""
         cur = self.connection.cursor()
-        cur.executemany('UPDATE all_lot SET STATUS = 1, nowDate = CURRENT_TIMESTAMP() '
-                        'WHERE id_steam = %s', data)
+        for i in data:
+            cur.execute('INSERT INTO all_lot (ss, status) '
+                        'VALUES (%s, 1) ON DUPLICATE KEY '
+                        'UPDATE STATUS=1', [i])
+        # cur.executemany('UPDATE all_lot SET STATUS = 1, nowDate = CURRENT_TIMESTAMP() '
+        #                 'WHERE id_steam = %s', data)
         self.connection.commit()
         print(f'Обновлененно записей: {len(data)}')
         cur.close()
