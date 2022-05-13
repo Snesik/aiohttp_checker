@@ -88,8 +88,7 @@ def compare(data, choice):
             elif item.sell_steam == 0:
                 update.append(item.href)
     print(datetime.datetime.now(), '\nНайдено: ', len(update))
-    return update
-    #return [i for i in update]
+    return [(i,) for i in update]
 
 
 if __name__ == "__main__":
