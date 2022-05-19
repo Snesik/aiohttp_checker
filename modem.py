@@ -20,9 +20,15 @@ class Modem:
         return self
 
     def rotation(self):
-        self.client.net.set_register('1', '25002', '7')
-        print('Ротация модема')
-        time.sleep(7)
+        try:
+            self.client.net.set_register('1', '25002', '7')
+            print('Ротация модема')
+            time.sleep(7)
+        except:
+            self.client.device.reboot()
+            time.sleep(60)
+            self.client.net.set_register('1', '25002', '7')
+            print('Ротация модема, была ошибкаб перезагрузил модем')
 
     def __exit__(self, exc_type, exc_val, exc_tb):
         return self.connection.close()
